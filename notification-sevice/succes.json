@@ -1,0 +1,14 @@
+Success
+
+{
+    "status" : 200,
+    "message" : "success"
+}
+
+Failed
+
+{
+    "status" : 500,
+    "message" : "failed",
+    "errors" : ["error1", "error2"]
+}

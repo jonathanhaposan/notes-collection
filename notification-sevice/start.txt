@@ -1,0 +1,212 @@
+create notification service
+
+current function :
+- push notification
+- email
+
+database table:
+- task
+    - id
+    - type
+    - tenant_id
+    - source_name
+    - status
+    - total_retry
+    - created_at
+    - updated_at
+    - data
+    - latest_error
+
+- notification_type
+    - id
+    - name
+    - description
+
+- status
+    - id
+    - description
+
+type :
+1 - email
+2 - pn
+
+tenant_id : 7 negara
+
+source_name : string nama service
+
+status
+1 - recieved
+2 - sent
+3 - failed from 3rd party
+4 - failed download attachment
+
+total_retry     : no of retry after cron
+created_at      : when data recieved
+updated_at      : when failed/sent
+data_sended     : what data send
+latest_error    : simpan error terakhir
+
+stack
+database , message queue , golang app , cron
+
+flow0
+@startuml
+title New notification request
+"other service" -> "notifier-web-service" : data
+"notifier-web-service" -> "notifier-web-service": validate request
+"notifier-web-service" -> "queue notifier-service.task_pool.fanout" : publish data
+"notifier-web-service" <-- "queue notifier-service.task_pool.fanout"
+"other service" <-- "notifier-web-service" : result
+@enduml
+
+flow1
+@startuml
+title task pool process
+"queue notifier-service.task_pool.fanout" -> "notifier-service" : consume message
+"notifier-service" -> "notifier-service": unmarshall data
+"notifier-service" -> "notifier-service": validate data
+"notifier-service" -> "database": insert database with status 1 (recieved)
+"notifier-service" <-- "database"
+"notifier-service" -> "queue" : publish data according to its type (email/pn)
+"notifier-service" <-- "queue"
+"queue notifier-service.task_pool.fanout" <-- "notifier-service" : ack
+@enduml
+
+flow2
+@startuml
+title PN Flow
+"queue notifier-service.pn.fanout" -> "notifier-service" : consume message
+"notifier-service" -> "notifier-service" : unmarshall data
+"notifier-service" -> "sz api" : send pn
+"notifier-service" <-- "sz api" : response
+alt case success
+	"notifier-service" -> "database" : update status to 2 (success)
+	"notifier-service" <-- "database"
+else case failed before retry exceed limit
+	"notifier-service" -> "notifier-service" : increment retry
+	"notifier-service" -> "queue notifier-service.pn.fanout" : re-publish data
+else case failed after retry exceed limit
+	"notifier-service" -> database : update status to 3 (failed from sz)
+	"notifier-service" <-- "database"
+end
+"queue notifier-service.pn.fanout" <-- "notifier-service" : ack
+@enduml
+
+
+flow3
+@startuml
+title Email Flow
+"queue notifier-service.email.fanout" -> "notifier-service" : consume message
+"notifier-service" -> "notifier-service" : unmarshal data
+"notifier-service" -> "notifier-service" : download attachment
+alt case failed download attachment
+	"notifier-service" -> "notifier-service" : retry download
+else case failed download attachment after retry exceed limit
+	"notifier-service" -> database : update status to 4 (failed download attachment)
+	"notifier-service" <-- "database"
+else case success
+    "notifier-service" -> "smtp server" : send email
+    "notifier-service" <-- "smtp server"
+    alt case success
+        "notifier-service" -> "database" : update status to 2 (success)
+        "notifier-service" <-- "database"
+    else case failed before retry exceed limit
+        "notifier-service" -> "notifier-service" : increment retry
+	    "notifier-service" -> "queue notifier-service.email.fanout" : re-publish data
+    else case failed after retry exceed limit
+        "notifier-service" -> database : update status to 3 (failed from smtp server)
+        "notifier-service" <-- "database"
+    end
+end
+"queue notifier-service.email.fanout" <-- "notifier-service" : ack
+@enduml
+
+flow4
+@startuml
+title Cron flow0
+"GKE" -> "notifier-cron-service" : trigger cron
+"notifier-cron-service" -> "database" : get data with status (3,4)
+"notifier-cron-service" <-- "database"
+"notifier-cron-service" -> "queue" : publish data according to its type
+"notifier-cron-service" <-- "queue"
+"GKE" <-- "notifier-cron-service"
+@enduml
+
+cron
+retry task with status 3 , 4 , 5
+
+endpoint
+- /api/v1/push_notification
+    {
+        "source_name"   : "service:event-tix",
+        "tenant_id"     : "ID",
+        "data"          : {
+            "userid": 209860000,
+            "is_scheduled": false,
+            "action_redirect_type": "My Products",
+            "country": "TW",
+            "name": "shirley test in test",
+            "pn_content": "update insert in test Promotions",
+            "ar_title": "insert task",
+            "ar_url": "http://www.google.com",
+            "ar_content": "ar content in test Promotions",
+            "pn_image_link": "http://www.aybsz.com/img/XK004%20(3).jpg",
+            "schedule_time": 1529037161,
+            "template_description": "desc",
+            "pn_grouping": "Promotions",
+            "ar_image_link": "http://f.shopee.tw/file/5dd7fe238d1b2d161aa6fd6ace960c72"
+        }
+    }
+
+    {
+        status : 200,
+        message : success
+    }
+
+    {
+        status : 200,
+        errors :["error1"]
+    }
+
+    - validation : 
+        - sesuai dengan docs
+        - source_name
+        - tenant_id
+
+- /api/v1/email
+    {
+        "source_name"   : "service:event-tix",
+        "tenant_id"     : "ID",
+        "data"          : {
+            "send_to"       : ["jonathan.situmorang@shopee.co.id"],
+            "bcc"           : ["fake_email1@email.com"],
+            "cc"            : ["fake_email2@email.com"],
+            "title"         : "Subject",
+            "body"          : "Main message",
+            "attachments"   : [
+                {
+                    "filename"  : "nama file 1",
+                    "url"       : "https://aws.cloud.download/file/something"
+                }
+            ]
+        }
+    }
+
+    {
+        status : 200,
+        message : success
+    }
+
+    {
+        status : 200,
+        errors :["error1"]
+    }
+
+    - validation :
+        - source_name 
+        - tenant_id
+        - send_to
+        - title
+        - body
+        - if attachment exist , url must a valid url structure
+        - if cc / bcc exist, must a valid email structure

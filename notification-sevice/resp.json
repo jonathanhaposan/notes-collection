@@ -1,0 +1,51 @@
+{
+    "data": {
+        "source_name": "service:event-tix",
+        "tenant_id": "ID",
+        "user_id": 209860000,
+        "action_type": ["push_notification", "email"],
+        "data": {
+            "push_notification": {
+                "userid": 209860000,
+                "is_scheduled": false,
+                "action_redirect_type": "My Products",
+                "country": "ID",
+                "name": "shirley test in test",
+                "pn_content": "update insert in test Promotions",
+                "ar_title": "insert task",
+                "ar_url": "http://www.google.com",
+                "ar_content": "ar content in test Promotions",
+                "pn_image_link": "http://www.aybsz.com/img/XK004%20(3).jpg",
+                "schedule_time": 1529037161,
+                "template_description": "desc",
+                "pn_grouping": "Promotions",
+                "ar_image_link": "http://f.shopee.tw/file/5dd7fe238d1b2d161aa6fd6ace960c72"
+            },
+            "email": {
+                "send_to": [{
+                    "email_address": "jonathan.situmorang@shopee.co.id",
+                    "name": "Jonathan"
+                }],
+                "bcc": [{
+                    "email_address": "fake12323@shopee.co.id",
+                    "name": "Fake Guy"
+                }],
+                "cc": [{
+                        "email_address": "fake42@shopee.co.id",
+                        "name": "Fake taxi"
+                    },
+                    {
+                        "email_address": "fake123@shopee.co.id",
+                        "name": "taxi fake"
+                    }
+                ],
+                "title": "Subject",
+                "body": "Main message",
+                "attachments": [{
+                    "filename": "nama file 1",
+                    "url": "https://aws.cloud.download/file/something"
+                }]
+            }
+        }
+    }
+}
