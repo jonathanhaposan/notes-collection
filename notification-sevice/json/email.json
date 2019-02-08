@@ -1,0 +1,4 @@
+{
+    "subject": "some subject {{ subjectplaceholder }}",
+    "body": "some body with some {{ data }}, <br>and some html <i>tag</i> that compatible with email <b>body</b>"
+}

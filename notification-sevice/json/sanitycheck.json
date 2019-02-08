@@ -1,0 +1,32 @@
+// Success
+{
+    "process_time": "31.998194ms",
+    "status": 200,
+    "message": "OK",
+    "data": {
+        "tasks": [{
+            "id": 423,
+            "source_name": "event-tix",
+            "user_id": 39247023,
+            "tenant_id": "SG",
+            "template_id": 145,
+            "action_type_id": 2,
+            "status": 2,
+            "data": "{\"placeholder_key\":\"some value\"}",
+            "created_at": "2006-01-02T15:04:05Z", // UTC
+            "updated_at": "2006-01-02T15:04:05Z" // UTC
+        }]
+    }
+}
+
+// Error
+{
+    "process_time": "3.998194ms",
+    "status": 500,
+    "message": "failed",
+    "error": "some error msg"
+}
+
+{
+    "placeholder_key": "some value"
+}

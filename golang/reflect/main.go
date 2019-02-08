@@ -11,9 +11,11 @@ type TestStruct struct {
 }
 
 func main() {
-	var ref TestStruct
-
-	Invoke(&ref, "logfunc", "123")
+	// var ref TestStruct
+	// Invoke(&ref, "logfunc", "123")
+	var asd time.Time
+	log.Println(asd.IsZero(), asd)
+	log.Println(time.Now().IsZero())
 }
 
 func Invoke(any interface{}, name string, args ...interface{}) {

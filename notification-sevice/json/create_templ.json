@@ -1,0 +1,60 @@
+// Request Body
+// simple push notif template
+{
+    "data": {
+        "name": "template name", // if not provided will be created on back end
+        "tenant_id": "SG",
+        "action_type_id": 2,
+        "content": "{\"pn_text\":\"some pn content\",\"ar_icon\":\"http:\/\/cf.shopee.tw\/file\/5dd7fe238d1b2d161aa6fd6ace960c72\",\"ar_title\":\"AR title\",\"ar_content\":\"some random content\",\"ar_grouping\":\"Promotions\",\"ar_type\":\"None\",\"ar_url\":\"https:\/\/www.google.com\"}"
+    }
+}
+
+// simple email template
+{
+    "data": {
+        "name": "template name", // if not provided will be created on back end
+        "tenant_id": "SG",
+        "action_type_id": 1,
+        "content": "{\"subject\":\"some subject {{ subjectplaceholder }}\",\"body\":\"some body with some {{ data }}, <br>and some html <i>tag<\/i> that compatible with email <b>body<\/b>\"}"
+    }
+}
+
+// Response
+// Success
+{
+    "status": 200,
+    "message": "OK",
+    "data": {
+        "id": 145
+    }
+}
+
+// Error
+{
+    "status": 404,
+    "message": "failed",
+    "error": "some error msg"
+}
+
+// Response
+// Success
+{
+    "status": 200,
+    "message": "OK",
+    "data": {
+        "id": 145,
+        "name": "template name", // if not provided will be created on back end
+        "tenant_id": "SG",
+        "action_type_id": 2,
+        "content": "{\"pn_text\":\"some pn content\",\"ar_icon\":\"http:\/\/cf.shopee.tw\/file\/5dd7fe238d1b2d161aa6fd6ace960c72\",\"ar_title\":\"AR title\",\"ar_content\":\"some random content\",\"ar_grouping\":\"Promotions\",\"ar_type\":\"None\",\"ar_url\":\"https:\/\/www.google.com\"}",
+        "created_at": "2006-01-02T15:04:05Z", // UTC
+        "updated_at": "2006-01-02T15:04:05Z" // UTC
+    }
+}
+
+// Error
+{
+    "status": 404,
+    "message": "failed",
+    "error": "some error msg"
+}

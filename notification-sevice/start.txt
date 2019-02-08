@@ -51,52 +51,77 @@ database , message queue , golang app , cron
 
 flow0
 @startuml
-title New notification request
-"other service" -> "notifier-web-service" : data
-"notifier-web-service" -> "notifier-web-service": validate request
-"notifier-web-service" -> "queue notifier-service.task_pool.fanout" : publish data
-"notifier-web-service" <-- "queue notifier-service.task_pool.fanout"
-"other service" <-- "notifier-web-service" : result
+title new incoming notification request
+"grpc client" -> "grpc server" : new notif
+"grpc server" -> "grpc server": validate notif data
+"grpc server" -> "redis": get template
+alt case failed / not exist in redis
+	"grpc server" -> "database" : get template 
+	"grpc server" <-- "database"
+    alt case template not exist in db
+        "grpc client" <-- "grpc server": error
+    end 
+    "grpc server" -> "redis": caching template, ttl 8 hour
+    "grpc server" <-- "redis"
+end
+"grpc server" -> "database": tx insert db with status 0 (pending)
+"grpc server" <-- "database"
+"grpc server" -> "topic notifier.task_pool.fanout" : publish data
+"grpc server" <-- "topic notifier.task_pool.fanout"
+"grpc client" <-- "grpc server" : ok
 @enduml
 
 flow1
 @startuml
 title task pool process
-"queue notifier-service.task_pool.fanout" -> "notifier-service" : consume message
+"topic notifier.task_pool.fanout" -> "notifier-service" : pull message
 "notifier-service" -> "notifier-service": unmarshall data
 "notifier-service" -> "notifier-service": validate data
-"notifier-service" -> "database": insert database with status 1 (recieved)
+"notifier-service" -> "redis": get template
+alt case failed / not exist in redis
+	"notifier-service" -> "database" : get template 
+	"notifier-service" <-- "database"
+    alt case template not exist in db
+        "notifier-service" -> "database" : update status 5 (template not found)
+        "notifier-service" <-- "database"
+        "topic notifier.task_pool.fanout" <-- "notifier-service" : ack
+    end
+    "notifier-service" -> "redis": caching template, ttl 8 hour
+    "notifier-service" <-- "redis"
+end
+"notifier-service" -> "notifier-service": parse placeholder
+"notifier-service" -> "database": update status 1 (on process)
 "notifier-service" <-- "database"
-"notifier-service" -> "queue" : publish data according to its type (email/pn)
-"notifier-service" <-- "queue"
-"queue notifier-service.task_pool.fanout" <-- "notifier-service" : ack
+"notifier-service" -> "pubsub" : publish to related topic (pn / email)
+"notifier-service" <-- "pubsub"
+"topic notifier.task_pool.fanout" <-- "notifier-service" : ack
 @enduml
 
 flow2
 @startuml
-title PN Flow
-"queue notifier-service.pn.fanout" -> "notifier-service" : consume message
+title push notification process
+"topic notifier.push_notif.fanout" -> "notifier-service" : pull message
 "notifier-service" -> "notifier-service" : unmarshall data
-"notifier-service" -> "sz api" : send pn
-"notifier-service" <-- "sz api" : response
+"notifier-service" -> "shenzhen API" : send pn
+"notifier-service" <-- "shenzhen API" : response
 alt case success
 	"notifier-service" -> "database" : update status to 2 (success)
 	"notifier-service" <-- "database"
 else case failed before retry exceed limit
 	"notifier-service" -> "notifier-service" : increment retry
-	"notifier-service" -> "queue notifier-service.pn.fanout" : re-publish data
+	"notifier-service" -> "topic notifier.push_notif.fanout" : re-publish data
 else case failed after retry exceed limit
-	"notifier-service" -> database : update status to 3 (failed from sz)
+	"notifier-service" -> database : update status to 3 (failed from shenzhen)
 	"notifier-service" <-- "database"
 end
-"queue notifier-service.pn.fanout" <-- "notifier-service" : ack
+"topic notifier.push_notif.fanout" <-- "notifier-service" : ack
 @enduml
 
 
 flow3
 @startuml
 title Email Flow
-"queue notifier-service.email.fanout" -> "notifier-service" : consume message
+"topic notifier.email.fanout" -> "notifier-service" : consume message
 "notifier-service" -> "notifier-service" : unmarshal data
 "notifier-service" -> "notifier-service" : download attachment
 alt case failed download attachment
@@ -112,24 +137,48 @@ else case success
         "notifier-service" <-- "database"
     else case failed before retry exceed limit
         "notifier-service" -> "notifier-service" : increment retry
-	    "notifier-service" -> "queue notifier-service.email.fanout" : re-publish data
+	    "notifier-service" -> "topic notifier.email.fanout" : re-publish data
     else case failed after retry exceed limit
         "notifier-service" -> database : update status to 3 (failed from smtp server)
         "notifier-service" <-- "database"
     end
 end
-"queue notifier-service.email.fanout" <-- "notifier-service" : ack
+"topic notifier.email.fanout" <-- "notifier-service" : ack
 @enduml
 
 flow4
 @startuml
-title Cron flow0
-"GKE" -> "notifier-cron-service" : trigger cron
-"notifier-cron-service" -> "database" : get data with status (3,4)
-"notifier-cron-service" <-- "database"
-"notifier-cron-service" -> "queue" : publish data according to its type
-"notifier-cron-service" <-- "queue"
-"GKE" <-- "notifier-cron-service"
+title retry failed task
+"GKE" -> "notifier-cron" : trigger cron
+"notifier-cron" -> "database" : get failed data (status 3,4,5,.. etc)
+"notifier-cron" <-- "database"
+"notifier-cron" -> "topic notifier.task_pool.fanout" : publish data to task pool
+"notifier-cron" <-- "topic notifier.task_pool.fanout"
+"GKE" <-- "notifier-cron"
+@enduml
+
+flow5
+@startuml
+title create template
+"user" -> "notifier-web" : new template
+"notifier-web" -> "notifier-web": validate data
+"notifier-web" -> "database" : insert data
+"notifier-web" <-- "database"
+"notifier-web" -> "redis": set to redis, ttl 8 hour
+"notifier-web" <-- "redis"
+"user" <-- "notifier-web": ok
+@enduml
+
+flow6
+@startuml
+title update template
+"user" -> "notifier-web" : updated template
+"notifier-web" -> "notifier-web": validate data
+"notifier-web" -> "database" : update data
+"notifier-web" <-- "database"
+"notifier-web" -> "redis": set to redis, ttl 8 hour
+"notifier-web" <-- "redis"
+"user" <-- "notifier-web": ok
 @enduml
 
 cron

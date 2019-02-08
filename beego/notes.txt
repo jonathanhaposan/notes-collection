@@ -1,0 +1,1 @@
+beego docker respect export BEEGO_RUNMODE variable
