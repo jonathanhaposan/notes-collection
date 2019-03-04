@@ -1,0 +1,75 @@
+mockgen git.garena.com/shopee/shopee-id/notifier/notifier-be/handler Handler
+
+helm template -f [source] [chart]
+helm template -f manifest/notifier-be/test.yaml manifest/notifier-be
+
+pubsub
+
+- gcloud pubsub topics create my-topic
+
+- gcloud pubsub subscriptions \
+    create my-sub --topic my-topic \
+    --ack-deadline=60
+
+gcloud pubsub topics list
+
+gcloud pubsub subscriptions list
+
+gcloud pubsub topics publish my-topic \
+    --message hello
+
+gcloud pubsub subscriptions \
+    pull --auto-ack --limit=2 my-sub
+
+
+subsciption yg exist gk bakal ke overwrite topic nya klo udah ada di gcp
+
+blom auto create topic
+
+brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/bdf0a5fab0028a775ffdf0ee59502d365f631424/Formula/kubernetes-helm.rb
+
+mockgen -source=models/event.go > tests/mock_models/event.go
+
+kubectl -n staging get pods
+kubectl -n jonathan get all
+
+Make help
+
+Create docker file dev, copy staging Aja
+
+Login ke docker
+
+gcloud auth configure-docker
+
+
+Install helm 
+brew install kubernetes-helm
+
+cd $BAKMI_DIR
+make deploy name=grombyang namespace=jonathan
+cd $BAKMI_DIR
+
+kubectl port-forward pod/jonathan-grombyang-deployment-564ddd87c9-8kpjn 9002:8080
+
+kubectl -n jonathan get all
+kubectl get endpoints
+kubectl get pvc
+kubectl get deploy
+
+make deploy name=grombyang namespace=jonathan
+make deploy name=xtradb namespace=jonathan
+
+kubectl get pod
+kubectl exec -it jonathan-grombyang-deployment-564ddd87c9-8kpjn -- /bin/bash
+
+kubectl logs -f jonathan-grombyang-deployment-864d6f4f86-8p25s -n jonathan
+
+delete pod/
+kubectl get deploy -n jonathan
+kubectl delete deploy [deployment name] -n jonathan
+
+kubectl get endpoints -n jonathan
+kubectl delete endpoints [endpoints name] -n jonathan
+
+kubectl get services -n jonathan
+kubectl delete services [services name] -n jonathan
