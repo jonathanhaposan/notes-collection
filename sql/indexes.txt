@@ -1,0 +1,10 @@
+SHOW INDEXES FROM table_name;
+
+http://www.mysqltutorial.org/mysql-index/mysql-show-indexes/
+
+cardinality
+The cardinality returns an estimated number of unique values in the index.
+
+Note that the higher the cardinality, the greater the chance that the query optimizer uses the index for lookups.
+
+http://blog.celerity.com/how-to-design-sql-indexes

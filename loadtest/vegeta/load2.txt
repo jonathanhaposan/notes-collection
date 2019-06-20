@@ -1,0 +1,3 @@
+GET https://play.uat.shopee.co.id/api/odg/v1/events/9/winners
+x-user-id: 1148270
+x-tenant: id

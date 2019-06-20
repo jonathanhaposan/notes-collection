@@ -1,0 +1,19 @@
+add context gke
+1. kubectl config get-contexts
+2. kubectl config set-context --cluster --user
+3. kubectl config delete-context
+4. kubectl config use-context
+
+kubectl config get-contexts
+
+kubectl config set-context test --cluster=gke_spid-non-prod_asia-southeast1-a_spid-non-prod-cluster --user=gke_spid-non-prod_asia-southeast1-a_spid-non-prod-cluster --namespace=test
+
+kubectl config use-context <context-name>
+
+
+
+—————————————————————————————
+
+get credential dari gcp
+
+gcloud contrainer cluster get-credentials <cluster-name>

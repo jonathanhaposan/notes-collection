@@ -1,0 +1,3 @@
+GET https://play.shopee.co.id/api/odg-fix/v1/events/2/history
+x-user-id: 27976155
+x-tenant: id

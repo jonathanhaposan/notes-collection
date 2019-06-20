@@ -1,0 +1,29 @@
+bombardier -c 200 -n 100000 -m GET --header="x-user-id: 1148270" --header="x-tenant: id" https://play.uat.shopee.co.id/api/odg/v1/events/9/winners
+
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 27976155" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 10577" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 10578" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 10597" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 10704" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 10712" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 23241" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 30954" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 31637" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 31851" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 34384" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+bombardier -c 8 -n 67000 -m GET --header="x-user-id: 41031" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2/history &
+wait
+
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 27976155" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 10577" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 10578" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 10597" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 10704" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 10712" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 23241" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 30954" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 31637" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 31851" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 34384" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+bombardier -c 5 -n 50000 -m GET --header="x-user-id: 41031" --header="x-tenant: id" https://play.shopee.co.id/api/odg-fix/v1/events/2 &
+wait
